@@ -2,23 +2,18 @@ import argparse
 import os
 import shutil
 import time
-
-from data import ImageList, MemTuple, PEDataLoader
+import logging
+from types import MethodType
 
 import torch
 import torch.nn as nn
-import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
-import torch.utils.data
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
 import torchvision.models as models
-from model import Model
-import torchvision.models as models
-from types import MethodType
-import logging
 from torch.utils.data import DataLoader
+
+from model import Model
+from data import ImageList, MemTuple, PEDataLoader
 
 
 #model_names = sorted(name for name in models.__dict__
