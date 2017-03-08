@@ -141,7 +141,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
     for i, data in enumerate(train_loader):
         loader = DataLoader(
                 MemTuple(data),
-                batch_size=args.batch_size, shuffle=False,
+                batch_size=args.batch_size, shuffle=True,
                 num_workers=2, pin_memory=True)
         for datum in loader:
             x1, x2, target = [torch.autograd.Variable(v.cuda())
