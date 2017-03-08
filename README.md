@@ -3,5 +3,5 @@
 
 How how run:
 ````
-python main --data 'path_to/brats2015TrainingData/'
+python main.py --data 'path_to/brats2015TrainingData/'
 ````
