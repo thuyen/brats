@@ -15,11 +15,6 @@ from torch.utils.data import DataLoader
 from model import Model
 from data import ImageList, MemTuple, PEDataLoader
 
-
-#model_names = sorted(name for name in models.__dict__
-#    if name.islower() and not name.startswith("__"))
-
-
 parser = argparse.ArgumentParser(description='PyTorch DeepMedic Training')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
