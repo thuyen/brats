@@ -30,6 +30,7 @@ class ImageList(Dataset):
             root='',
             split='valid',
             sample_size=500):
+
         with open(list_file) as f:
             names = f.read().splitlines()
             names = [os.path.join(root, name) for name in names]
