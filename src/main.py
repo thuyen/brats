@@ -26,13 +26,13 @@ from torch.utils.data import DataLoader
 
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
-parser.add_argument('-j', '--workers', default=16, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
-parser.add_argument('--epochs', default=4, type=int, metavar='N',
+parser.add_argument('--epochs', default=20, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=16, type=int,
+parser.add_argument('-b', '--batch-size', default=20, type=int,
                     metavar='N', help='mini-batch size (default: 256)')
 parser.add_argument('-g', '--gpu', default='1', type=str,
                     metavar='N', help='mini-batch size (default: 256)')
@@ -100,12 +100,12 @@ def main():
     train_loader = PEDataLoader(
         ImageList(train_list, root=train_dir, split='train', sample_size=10),
         batch_size=50, shuffle=False,
-        num_workers=8, pin_memory=False)
+        num_workers=args.workers, pin_memory=False)
 
     valid_loader = PEDataLoader(
         ImageList(valid_list, root=valid_dir, split='valid', sample_size=10),
         batch_size=50, shuffle=False,
-        num_workers=8, pin_memory=False)
+        num_workers=args.workers, pin_memory=False)
 
     criterion = nn.CrossEntropyLoss().cuda()
 
@@ -153,10 +153,11 @@ def train(train_loader, model, criterion, optimizer, epoch):
     for i, data in enumerate(train_loader):
         loader = DataLoader(
                 MemTuple(data),
-                batch_size=20, shuffle=False,
-                num_workers=2, pin_memory=False)
+                batch_size=args.batch_size, shuffle=False,
+                num_workers=2, pin_memory=True)
         for datum in loader:
-            x1, x2, target = [torch.autograd.Variable(v.cuda()) for v in datum[:-1]]
+            x1, x2, target = [torch.autograd.Variable(v.cuda())
+                    for v in datum[:-1]]
 
             # compute output
             output = model((x1, x2)) # nx5x9x9x9
@@ -186,10 +187,11 @@ def validate(valid_loader, model, criterion):
     for i, data in enumerate(valid_loader):
         loader = DataLoader(
                 MemTuple(data),
-                batch_size=20, shuffle=False,
+                batch_size=args.batch_size, shuffle=False,
                 num_workers=2, pin_memory=True)
         for datum in loader:
-            x1, x2, target = [torch.autograd.Variable(v.cuda(), volatile=True) for v in datum[:-1]]
+            x1, x2, target = [torch.autograd.Variable(v.cuda(), volatile=True)
+                    for v in datum[:-1]]
 
             # compute output
             output = model((x1, x2)) # nx5x9x9x9

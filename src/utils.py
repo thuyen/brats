@@ -1,5 +1,6 @@
 import numpy as np
 import nibabel as nib
+
 def sample_coords(sample_size, patch_shape, weight_map):
     ndim = len(patch_shape)
     dist2center = np.zeros((ndim, 2) , dtype='int32') # from patch boundaries

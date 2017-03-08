@@ -151,6 +151,7 @@ class PEDataLoader(object):
     A multiprocess-dataloader that parallels over elements as suppose to
     over batches (the torch built-in one)
     Input dataset must be callable with index argument: dataset(index)
+    https://github.com/thuyen/nnet/blob/master/pedataloader.py
     """
 
     def __init__(self, dataset, batch_size=1, shuffle=False,
