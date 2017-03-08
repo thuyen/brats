@@ -44,7 +44,7 @@ class ImageList(Dataset):
         self.sub_patch_shape = get_sub_patch_shape(self.patch_shape,
                 self.receptive_field, self.scale_factor)
         self.sub_off = get_offset(self.scale_factor, self.receptive_field)
-        self.modalities = ('Flair', ) #'T1c', 'T1', 'T2')
+        self.modalities = ('Flair', 'T1c', 'T1', 'T2')
         self.C = len(self.modalities)
 
     def coord_to_slice(self, coord):

@@ -12,7 +12,7 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.branch1 = nn.Sequential(
-                conv3x3(1, 30),
+                conv3x3(4, 30),
                 conv3x3(30, 30),
                 conv3x3(30, 40),
                 conv3x3(40, 40),
@@ -22,7 +22,7 @@ class Model(nn.Module):
                 conv3x3(50, 50))
 
         self.branch2 = nn.Sequential(
-                conv3x3(1, 30),
+                conv3x3(4, 30),
                 conv3x3(30, 30),
                 conv3x3(30, 40),
                 conv3x3(40, 40),
