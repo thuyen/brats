@@ -94,7 +94,6 @@ class ImageList(Dataset):
 
             samples[n] = images[:, ss[0]:ee[0], ss[1]:ee[1], ss[2]:ee[2]]
 
-            #pimages = np.pad(images, [(0, 0)] + pad, mode='mean')
             pimages = np.pad(images, [(0, 0)] + pad, mode='constant')
             sub_samples[n] = \
                     pimages[:, lo[0]:hi[0]:kx, lo[1]:hi[1]:ky, lo[2]:hi[2]:kz]
