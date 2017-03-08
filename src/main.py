@@ -96,7 +96,7 @@ def main():
     train_list = 'train_list.txt'
     valid_list = 'valid_list.txt'
 
-    # The loader will get 1000 patches at a time from 50 subjects
+    # The loader will get 1000 patches from 50 subjects for each sub epoch
     train_loader = PEDataLoader(
         ImageList(train_list, root=train_dir, split='train', sample_size=10),
         batch_size=50, shuffle=False,
