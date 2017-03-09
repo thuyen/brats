@@ -20,7 +20,6 @@ SCALE_FACTOR = (3, 3, 3)
 SHAPE = [240, 240, 155]
 
 np.random.seed(2017)
-torch.manual_seed(2017)
 
 class ImageList(Dataset):
     def __init__(self,
@@ -31,7 +30,6 @@ class ImageList(Dataset):
             root='',
             split='valid',
             sample_size=500):
-
         with open(list_file) as f:
             names = f.read().splitlines()
             names = [os.path.join(root, name) for name in names]
@@ -46,7 +44,7 @@ class ImageList(Dataset):
         self.sub_patch_shape = get_sub_patch_shape(self.patch_shape,
                 self.receptive_field, self.scale_factor)
         self.sub_off = get_offset(self.scale_factor, self.receptive_field)
-        self.modalities = ('Flair', 'T1c', 'T1', 'T2')
+        self.modalities = ('Flair', ) #'T1c', 'T1', 'T2')
         self.C = len(self.modalities)
 
     def coord_to_slice(self, coord):
@@ -54,7 +52,7 @@ class ImageList(Dataset):
 
     def coord_to_sub_slice(self, coord):
         lo = coord[:, 0] + self.sub_off
-        num = self.patch_shape - self.receptive_field + 1
+        num = self.patch_shape - self.receptive_field+ 1
         hi = lo + self.scale_factor*self.receptive_field + \
                 np.ceil((num*1.0)/self.scale_factor - 1) * self.scale_factor
         hi = hi.astype('int')
@@ -95,6 +93,7 @@ class ImageList(Dataset):
 
             samples[n] = images[:, ss[0]:ee[0], ss[1]:ee[1], ss[2]:ee[2]]
 
+            #pimages = np.pad(images, [(0, 0)] + pad, mode='mean')
             pimages = np.pad(images, [(0, 0)] + pad, mode='constant')
             sub_samples[n] = \
                     pimages[:, lo[0]:hi[0]:kx, lo[1]:hi[1]:ky, lo[2]:hi[2]:kz]
@@ -131,21 +130,8 @@ class ImageList(Dataset):
     def __len__(self):
         return len(self.names)
 
-
-class MemTuple(Dataset):
-    def __init__(self, data):
-        for k, datum in enumerate(data):
-            size = datum.size()
-            new_size = (size[0]*size[1], ) + size[2:]
-            datum = datum.view(*new_size)
-            data[k] = datum
-        self.data = data
-
-    def __getitem__(self, index):
-        return [d[index] for d in self.data]
-
-    def __len__(self):
-        return len(self.data)
+def default_collate_fn(batch):
+    return [torch.cat([torch.from_numpy(t) for t in v]) for v in zip(*batch)]
 
 class PEDataLoader(object):
     """
@@ -162,7 +148,7 @@ class PEDataLoader(object):
         self.shuffle = shuffle
         self.num_workers = num_workers
 
-        self.collate_fn = torch.utils.data.dataloader.default_collate
+        self.collate_fn = default_collate_fn
         self.pin_memory_fn = \
                 torch.utils.data.dataloader.pin_memory_batch if pin_memory else \
                 lambda x: x

@@ -2,36 +2,48 @@ import argparse
 import os
 import shutil
 import time
-import logging
-from types import MethodType
+
+from data import ImageList, PEDataLoader
 
 import torch
 import torch.nn as nn
+import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
+import torch.utils.data
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
 import torchvision.models as models
+from model import Model
+import torchvision.models as models
+from types import MethodType
+import logging
 from torch.utils.data import DataLoader
 
-from model import Model
-from data import ImageList, MemTuple, PEDataLoader
 
-parser = argparse.ArgumentParser(description='PyTorch DeepMedic Training')
+#model_names = sorted(name for name in models.__dict__
+#    if name.islower() and not name.startswith("__"))
+
+
+parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
-parser.add_argument('--epochs', default=100, type=int, metavar='N',
+parser.add_argument('--epochs', default=20, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
 parser.add_argument('-b', '--batch-size', default=20, type=int,
-                    metavar='N', help='mini-batch size (default: 20)')
-parser.add_argument('-g', '--gpu', default='0', type=str,
-                    metavar='N', help='mini-batch size (default: 0)')
+                    metavar='N', help='mini-batch size (default: 256)')
+parser.add_argument('-g', '--gpu', default='1', type=str,
+                    metavar='N', help='mini-batch size (default: 256)')
 parser.add_argument('--lr', '--learning-rate', default=1e-1, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
 parser.add_argument('--weight-decay', '--wd', default=5e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
+parser.add_argument('--print-freq', '-p', default=100, type=int,
+                    metavar='N', help='print frequency (default: 1000)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
@@ -84,14 +96,14 @@ def main():
     train_list = 'train_list.txt'
     valid_list = 'valid_list.txt'
 
-    # The loader will get 1000 patches from 50 subjects for each subepoch
+    # The loader will get 1000 patches from 50 subjects for each sub epoch
     train_loader = PEDataLoader(
-        ImageList(train_list, root=train_dir, split='train', sample_size=10),
+        ImageList(train_list, root=train_dir, split='train', sample_size=20),
         batch_size=50, shuffle=False,
         num_workers=args.workers, pin_memory=False)
 
     valid_loader = PEDataLoader(
-        ImageList(valid_list, root=valid_dir, split='valid', sample_size=10),
+        ImageList(valid_list, root=valid_dir, split='valid', sample_size=20),
         batch_size=50, shuffle=False,
         num_workers=args.workers, pin_memory=False)
 
@@ -140,8 +152,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
     for i, data in enumerate(train_loader):
         loader = DataLoader(
-                MemTuple(data),
-                batch_size=args.batch_size, shuffle=True,
+                data,
+                batch_size=args.batch_size, shuffle=False,
                 num_workers=2, pin_memory=True)
         for datum in loader:
             x1, x2, target = [torch.autograd.Variable(v.cuda())
@@ -174,7 +186,7 @@ def validate(valid_loader, model, criterion):
 
     for i, data in enumerate(valid_loader):
         loader = DataLoader(
-                MemTuple(data),
+                data,
                 batch_size=args.batch_size, shuffle=False,
                 num_workers=2, pin_memory=True)
         for datum in loader:
