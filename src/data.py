@@ -29,7 +29,7 @@ class ImageList(Dataset):
             scale_factor=SCALE_FACTOR,
             root='',
             split='valid',
-            sample_size=500):
+            sample_size=20):
         with open(list_file) as f:
             names = f.read().splitlines()
             names = [os.path.join(root, name) for name in names]
@@ -44,7 +44,7 @@ class ImageList(Dataset):
         self.sub_patch_shape = get_sub_patch_shape(self.patch_shape,
                 self.receptive_field, self.scale_factor)
         self.sub_off = get_offset(self.scale_factor, self.receptive_field)
-        self.modalities = ('Flair', ) #'T1c', 'T1', 'T2')
+        self.modalities = ('Flair', 'T1c', 'T1', 'T2')
         self.C = len(self.modalities)
 
     def coord_to_slice(self, coord):
@@ -52,7 +52,7 @@ class ImageList(Dataset):
 
     def coord_to_sub_slice(self, coord):
         lo = coord[:, 0] + self.sub_off
-        num = self.patch_shape - self.receptive_field+ 1
+        num = self.patch_shape - self.receptive_field + 1
         hi = lo + self.scale_factor*self.receptive_field + \
                 np.ceil((num*1.0)/self.scale_factor - 1) * self.scale_factor
         hi = hi.astype('int')

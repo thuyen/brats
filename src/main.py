@@ -3,32 +3,22 @@ import os
 import shutil
 import time
 
-from data import ImageList, PEDataLoader
-
 import torch
 import torch.nn as nn
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
-import torch.utils.data
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
-import torchvision.models as models
-from model import Model
-import torchvision.models as models
-from types import MethodType
 import logging
 from torch.utils.data import DataLoader
 
+from data import ImageList, PEDataLoader
+from model import Model
 
-#model_names = sorted(name for name in models.__dict__
-#    if name.islower() and not name.startswith("__"))
 
-
-parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
+parser = argparse.ArgumentParser(description='PyTorch DeepMedic Training')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
-parser.add_argument('--epochs', default=20, type=int, metavar='N',
+parser.add_argument('--epochs', default=100, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
