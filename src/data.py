@@ -20,6 +20,7 @@ SCALE_FACTOR = (3, 3, 3)
 SHAPE = [240, 240, 155]
 
 np.random.seed(2017)
+torch.manual_seed(2017)
 
 class ImageList(Dataset):
     def __init__(self,
@@ -53,7 +54,7 @@ class ImageList(Dataset):
 
     def coord_to_sub_slice(self, coord):
         lo = coord[:, 0] + self.sub_off
-        num = self.patch_shape - self.receptive_field+ 1
+        num = self.patch_shape - self.receptive_field + 1
         hi = lo + self.scale_factor*self.receptive_field + \
                 np.ceil((num*1.0)/self.scale_factor - 1) * self.scale_factor
         hi = hi.astype('int')
