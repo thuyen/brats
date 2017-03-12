@@ -88,12 +88,12 @@ def main():
     # The loader will get 1000 patches from 50 subjects for each sub epoch
     train_loader = PEDataLoader(
         ImageList(train_list, root=train_dir, split='train', sample_size=20),
-        batch_size=50, shuffle=False,
+        batch_size=50, shuffle=True, num_batches=20,
         num_workers=args.workers, pin_memory=False)
 
     valid_loader = PEDataLoader(
         ImageList(valid_list, root=valid_dir, split='valid', sample_size=20),
-        batch_size=50, shuffle=False,
+        batch_size=50, shuffle=True, num_batches=20,
         num_workers=args.workers, pin_memory=False)
 
     criterion = nn.CrossEntropyLoss().cuda()

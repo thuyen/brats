@@ -152,7 +152,7 @@ class PEDataLoader(object):
     """
 
     def __init__(self, dataset, batch_size=1, shuffle=False,
-                 num_workers=None, pin_memory=False):
+                 num_workers=None, pin_memory=False, num_batches=None):
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -164,26 +164,34 @@ class PEDataLoader(object):
                 lambda x: x
 
         self.num_samples = len(dataset)
-        self.num_batches = int(math.ceil(self.num_samples / float(self.batch_size)))
+        self.num_batches = num_batches or \
+                int(math.ceil(self.num_samples / float(self.batch_size)))
 
         self.pool = mp.Pool(num_workers)
         self.buffer = queue.Queue(maxsize=1)
         self.start()
 
     def generate_batches(self):
-        self.indices = \
-                torch.randperm(self.num_samples).long() if self.shuffle else \
-                torch.LongTensor(range(self.num_samples))
+        if self.shuffle:
+            indices = torch.LongTensor(self.batch_size)
+            for b in range(self.num_batches):
+                indices.random_(0, self.num_samples-1)
+                batch = self.pool.map(self.dataset, indices)
+                batch = self.collate_fn(batch)
+                batch = self.pin_memory_fn(batch)
+                yield batch
+        else:
+            self.indices = torch.LongTensor(range(self.num_samples))
+            for b in range(self.num_batches):
+                start_index = b*self.batch_size
+                end_index = (b+1)*self.batch_size if b < self.num_batches - 1 \
+                        else self.num_samples
+                indices = self.indices[start_index:end_index]
+                batch = self.pool.map(self.dataset, indices)
+                batch = self.collate_fn(batch)
+                batch = self.pin_memory_fn(batch)
+                yield batch
 
-        for b in range(self.num_batches):
-            start_index = b*self.batch_size
-            end_index = (b+1)*self.batch_size if b < self.num_batches - 1 \
-                    else self.num_samples
-            indices = self.indices[start_index:end_index]
-            batch = self.pool.map(self.dataset, indices)
-            batch = self.collate_fn(batch)
-            batch = self.pin_memory_fn(batch)
-            yield batch
 
     def start(self):
         def _thread():
