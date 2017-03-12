@@ -130,6 +130,16 @@ class ImageList(Dataset):
     def __len__(self):
         return len(self.names)
 
+class Tuple(Dataset):
+    def __init__(self, data):
+        self.data = data
+
+    def __getitem__(self, index):
+        return [d[index] for d in self.data]
+
+    def __len__(self):
+        return len(self.data[0])
+
 def default_collate_fn(batch):
     return [torch.cat([torch.from_numpy(t) for t in v]) for v in zip(*batch)]
 

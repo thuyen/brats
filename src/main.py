@@ -11,7 +11,7 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 from torch.utils.data import DataLoader
 
-from data import ImageList, PEDataLoader
+from data import ImageList, Tuple, PEDataLoader
 from model import Model
 
 
@@ -141,7 +141,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
     for i, data in enumerate(train_loader):
         loader = DataLoader(
-                data,
+                Tuple(data),
                 batch_size=args.batch_size, shuffle=False,
                 num_workers=2, pin_memory=True)
         for datum in loader:
@@ -175,7 +175,7 @@ def validate(valid_loader, model, criterion):
 
     for i, data in enumerate(valid_loader):
         loader = DataLoader(
-                data,
+                Tuple(data),
                 batch_size=args.batch_size, shuffle=False,
                 num_workers=2, pin_memory=True)
         for datum in loader:
